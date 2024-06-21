@@ -1,6 +1,9 @@
 package com.jiang.duckoj.utils;
 
+import com.jiang.duckoj.model.entity.User;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Date;
 
 /**
  * SQL 工具
@@ -18,6 +21,7 @@ public class SqlUtils {
         if (StringUtils.isBlank(sortField)) {
             return false;
         }
+
         return !StringUtils.containsAny(sortField, "=", "(", ")", " ");
     }
 }
