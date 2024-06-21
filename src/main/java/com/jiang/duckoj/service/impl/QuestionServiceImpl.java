@@ -83,16 +83,16 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         Long id = questionQueryRequest.getId();
         Long userId = questionQueryRequest.getUserId();
         String title = questionQueryRequest.getTitle();
+        String answer = questionQueryRequest.getAnswer();
         String content = questionQueryRequest.getContent();
         List<String> tagsList = questionQueryRequest.getTags();
         String sortField = questionQueryRequest.getSortField();
         String sortOrder = questionQueryRequest.getSortOrder();
         // 拼接查询条件
-        if (StringUtils.isNotBlank(title)) {
-            queryWrapper.and(qw -> qw.like("title", title).or().like("content", content));
-        }
         queryWrapper.like(StringUtils.isNotBlank(title), "title", title);
         queryWrapper.like(StringUtils.isNotBlank(content), "content", content);
+        //允许根据答案查询：
+        queryWrapper.like(StringUtils.isNotBlank(content), "answer", answer);
         if (CollUtil.isNotEmpty(tagsList)) {
             for (String tag : tagsList) {
                 queryWrapper.like("tags", "\"" + tag + "\"");
