@@ -62,7 +62,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         if (StringUtils.isNotBlank(content) && content.length() > 8192) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "内容过长");
         }
-
         if (StringUtils.isNotBlank(tags) && tags.length() > 8192) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "标签内容");
         }

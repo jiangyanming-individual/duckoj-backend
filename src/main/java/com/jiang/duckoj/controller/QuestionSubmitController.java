@@ -4,9 +4,9 @@ import com.jiang.duckoj.common.BaseResponse;
 import com.jiang.duckoj.common.ErrorCode;
 import com.jiang.duckoj.common.ResultUtils;
 import com.jiang.duckoj.exception.BusinessException;
-import com.jiang.duckoj.model.dto.questionSubmitthumb.QuestionSubmitThumbAddRequest;
+import com.jiang.duckoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.jiang.duckoj.model.entity.User;
-import com.jiang.duckoj.service.QuestionSubmitThumbService;
+import com.jiang.duckoj.service.QuestionSubmitService;
 import com.jiang.duckoj.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,33 +22,36 @@ import javax.servlet.http.HttpServletRequest;
  *
  */
 @RestController
-@RequestMapping("/questionSubmit_thumb")
+@RequestMapping("/questionSubmit")
 @Slf4j
 public class QuestionSubmitController {
 
     @Resource
-    private QuestionSubmitThumbService questionSubmitThumbService;
+    private QuestionSubmitService questionSubmitService;
 
     @Resource
     private UserService userService;
 
+
     /**
-     * 点赞 / 取消点赞
-     *
-     * @param questionSubmitThumbAddRequest
+     * 提交题目
+     * @param questionSubmitAddRequest
      * @param request
-     * @return resultNum 本次点赞变化数
+     * @return resultNum
      */
-    @PostMapping("/")
-    public BaseResponse<Integer> doThumb(@RequestBody QuestionSubmitThumbAddRequest questionSubmitThumbAddRequest,
+    @PostMapping("/submit")
+    public BaseResponse<Long> doQuestionSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
             HttpServletRequest request) {
-        if (questionSubmitThumbAddRequest == null || questionSubmitThumbAddRequest.getQuestionSubmitId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"请求参数不存在");
         }
         // 登录才能点赞
         final User loginUser = userService.getLoginUser(request);
-        long questionSubmitId = questionSubmitThumbAddRequest.getQuestionSubmitId();
-        int result = questionSubmitThumbService.doQuestionSubmitThumb(questionSubmitId, loginUser);
+        if (loginUser.getId()<=0){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"用户id不合法");
+        }
+        //返回提交题目后插入数据中的id
+        long result = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(result);
     }
 

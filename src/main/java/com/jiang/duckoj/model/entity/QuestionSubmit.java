@@ -2,6 +2,10 @@ package com.jiang.duckoj.model.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 /**
@@ -13,6 +17,7 @@ public class QuestionSubmit implements Serializable {
     /**
      * id
      */
+    @TableId(type = IdType.ASSIGN_ID) //雪花算法
     private Long id;
 
     /**
@@ -31,7 +36,7 @@ public class QuestionSubmit implements Serializable {
     private String judgeInfo;
 
     /**
-     * 提交语言
+     * 提交语言，枚举类
      */
     private String submitLanguage;
 
@@ -58,6 +63,7 @@ public class QuestionSubmit implements Serializable {
     /**
      * 是否删除
      */
+    @TableField
     private Integer isDelete;
 
     private static final long serialVersionUID = 1L;

@@ -3,7 +3,9 @@ package com.jiang.duckoj.model.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 /**
@@ -15,6 +17,7 @@ public class Question implements Serializable {
     /**
      * id
      */
+    @TableId(type = IdType.ASSIGN_ID) //雪花算法
     private Long id;
 
     /**
