@@ -26,19 +26,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
-* @author jiangyanming
-* @description 针对表【question(题目)】的数据库操作Service实现
-* @createDate 2024-06-21 17:43:56
-*/
+ * @author jiangyanming
+ * @description 针对表【question(题目)】的数据库操作Service实现
+ * @createDate 2024-06-21 17:43:56
+ */
 @Service
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
-    implements QuestionService{
+        implements QuestionService {
 
     @Resource
     private UserService userService;
 
     /**
      * 校验题目字段
+     *
      * @param question
      * @param add
      */
@@ -106,7 +107,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     }
 
     /**
-     * 获取题目包装类
+     * 获取题目信息脱敏
+     *
      * @param question
      * @param request
      * @return
@@ -114,7 +116,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     @Override
     public QuestionVO getQuestionVO(Question question, HttpServletRequest request) {
         QuestionVO questionVO = QuestionVO.objToVo(question);
-        long questionId = question.getId();
         // 1. 关联查询用户信息
         Long userId = question.getUserId();
         User user = null;
@@ -123,12 +124,12 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         }
         UserVO userVO = userService.getUserVO(user);
         questionVO.setUserVO(userVO);
-
         return questionVO;
     }
 
     /**
      * 题目分页
+     *
      * @param questionPage
      * @param request
      * @return
@@ -136,6 +137,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     @Override
     public Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request) {
         List<Question> questionList = questionPage.getRecords();
+        //返回默认的Page 分页
         Page<QuestionVO> questionVOPage = new Page<>(questionPage.getCurrent(), questionPage.getSize(), questionPage.getTotal());
         if (CollUtil.isEmpty(questionList)) {
             return questionVOPage;

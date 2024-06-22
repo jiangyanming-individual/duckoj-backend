@@ -10,10 +10,7 @@ import com.jiang.duckoj.common.ResultUtils;
 import com.jiang.duckoj.constant.UserConstant;
 import com.jiang.duckoj.exception.BusinessException;
 import com.jiang.duckoj.exception.ThrowUtils;
-import com.jiang.duckoj.model.dto.question.QuestionAddRequest;
-import com.jiang.duckoj.model.dto.question.QuestionEditRequest;
-import com.jiang.duckoj.model.dto.question.QuestionQueryRequest;
-import com.jiang.duckoj.model.dto.question.QuestionUpdateRequest;
+import com.jiang.duckoj.model.dto.question.*;
 import com.jiang.duckoj.model.entity.Question;
 import com.jiang.duckoj.model.entity.User;
 import com.jiang.duckoj.model.vo.QuestionVO;
@@ -29,7 +26,6 @@ import java.util.List;
 
 /**
  * 题目接口
- *
  */
 @RestController
 @RequestMapping("/question")
@@ -49,6 +45,8 @@ public class QuestionController {
      * @param request
      * @return
      */
+
+    //todo 需要根据title 进行判断不能重复添加题目：
     @PostMapping("/add")
     public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest, HttpServletRequest request) {
         if (questionAddRequest == null) {
@@ -59,6 +57,15 @@ public class QuestionController {
         List<String> tags = questionAddRequest.getTags();
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
+        }
+        //转换对象插入：
+        JudgeCase judgeCase = questionAddRequest.getJudgeCase();
+        if (judgeCase != null) {
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCase));
+        }
+        JudgeConfig judgeConfig = questionAddRequest.getJudgeConfig();
+        if (judgeConfig != null) {
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
         }
         questionService.validQuestion(question, true);
         User loginUser = userService.getLoginUser(request);
@@ -114,6 +121,15 @@ public class QuestionController {
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
         }
+        //转换对象插入：
+        JudgeCase judgeCase = questionUpdateRequest.getJudgeCase();
+        if (judgeCase != null) {
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCase));
+        }
+        JudgeConfig judgeConfig = questionUpdateRequest.getJudgeConfig();
+        if (judgeConfig != null) {
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
+        }
         // 参数校验
         questionService.validQuestion(question, false);
         long id = questionUpdateRequest.getId();
@@ -125,8 +141,7 @@ public class QuestionController {
     }
 
     /**
-     * 根据 id 获取
-     *
+     * 根据 id 获取题目信息
      * @param id
      * @return
      */
@@ -144,7 +159,6 @@ public class QuestionController {
 
     /**
      * 分页获取列表（仅管理员）
-     *
      * @param questionQueryRequest
      * @return
      */
@@ -167,11 +181,12 @@ public class QuestionController {
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-            HttpServletRequest request) {
+                                                               HttpServletRequest request) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        //先查询到所有的分页信息，然后调用分页脱敏接口：
         Page<Question> questionPage = questionService.page(new Page<>(current, size),
                 questionService.getQueryWrapper(questionQueryRequest));
         return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
@@ -186,7 +201,7 @@ public class QuestionController {
      */
     @PostMapping("/my/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listMyQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-            HttpServletRequest request) {
+                                                                 HttpServletRequest request) {
         if (questionQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -203,7 +218,6 @@ public class QuestionController {
 
     /**
      * 编辑（用户）
-     *
      * @param questionEditRequest
      * @param request
      * @return
@@ -218,6 +232,15 @@ public class QuestionController {
         List<String> tags = questionEditRequest.getTags();
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
+        }
+        //转换json对象插入数据库：
+        JudgeCase judgeCase = questionEditRequest.getJudgeCase();
+        if (judgeCase != null) {
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCase));
+        }
+        JudgeConfig judgeConfig = questionEditRequest.getJudgeConfig();
+        if (judgeConfig != null) {
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
         }
         // 参数校验
         questionService.validQuestion(question, false);
