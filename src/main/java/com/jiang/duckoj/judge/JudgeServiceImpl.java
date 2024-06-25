@@ -8,6 +8,9 @@ import com.jiang.duckoj.judge.codesandbox.CodeSandBoxFactory;
 import com.jiang.duckoj.judge.codesandbox.CodeSandBoxProxy;
 import com.jiang.duckoj.judge.codesandbox.model.ExecuteRequest;
 import com.jiang.duckoj.judge.codesandbox.model.ExecuteResponse;
+import com.jiang.duckoj.judge.strategy.JudgeContext;
+import com.jiang.duckoj.judge.strategy.JudgeStrategy;
+import com.jiang.duckoj.judge.strategy.impl.DefaultJudgeStrategy;
 import com.jiang.duckoj.model.dto.question.JudgeCase;
 import com.jiang.duckoj.model.dto.question.JudgeConfig;
 import com.jiang.duckoj.model.dto.questionsubmit.JudgeInfo;
@@ -39,7 +42,7 @@ public class JudgeServiceImpl implements JudgeService {
     private String type;
 
     @Override
-    public QuestionSubmitVO doJudge(long questionSubmitId) {
+    public QuestionSubmit doJudge(long questionSubmitId) {
         //(1) 传入判题的id，获取到对应判题题目、判题语言、判题内容、提交信息
         QuestionSubmit questionSubmit = questionSubmitService.getById(questionSubmitId);
         //参数校验：
@@ -84,46 +87,31 @@ public class JudgeServiceImpl implements JudgeService {
                 .inputList(judgeCaseInput).build();
         ExecuteResponse executeResponse = codeSandBoxProxy.doExecute(executeRequest);
 
-        //(5) 判断条件：
-        // 1. 判断输入用例和代码沙箱的输出个数是否相等。
-        //设置判题的状态：
-        JudgeInfoMessageEnum judgeInfoMessageEnum = JudgeInfoMessageEnum.WAITING;
-        List<String> outputList = executeResponse.getOutputList();
-        if (judgeCaseInput.size() != outputList.size()) {
-            judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
-            return null;
-        }
-        // 2. 判断每个输出用例和代码沙箱的输出是否相等，如果不相等直接返回。
-        for (int i = 0; i < judgeCaseOutput.size(); i++) {
-            if (!judgeCaseOutput.get(i).equals(outputList.get(i))) {
-                judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
-                return null;
-            }
-        }
-        // 3. 判断题目的限制是否符合要求。
-        JudgeInfo judgeInfo = executeResponse.getJudgeInfo();
-        Long runTime = judgeInfo.getTime();
-        Long runMemory = judgeInfo.getMemory();
-        //题目设置的判题限制：
-        String judgeConfigStr = question.getJudgeConfig();
-        JudgeConfig expectJudgeConfig = JSONUtil.toBean(judgeConfigStr, JudgeConfig.class);
-        Long needTimeLimit = expectJudgeConfig.getTimeLimit();
-        Long needeMoryLimit = expectJudgeConfig.getMemoryLimit();
-        if (runTime > needTimeLimit) {
-            judgeInfoMessageEnum = JudgeInfoMessageEnum.TIME_LIMIT_EXCEEDED;
-            return null;
-        }
-        if (runMemory > needeMoryLimit) {
-            judgeInfoMessageEnum = JudgeInfoMessageEnum.MEMORY_LIMIT_EXCEEDED;
-            return null;
-        }
+        JudgeContext judgeContext = new JudgeContext();
+        judgeContext.setJudgeCaseList(judgeCaseList);
+        judgeContext.setJudgeCaseInput(judgeCaseInput);
+        judgeContext.setJudgeCaseOutput(judgeCaseOutput);
+        //获取代码沙箱输出结果
+        judgeContext.setOutputList(executeResponse.getOutputList());
+        //获得代码沙箱输出的判题的信息：
+        judgeContext.setJudgeInfo(executeResponse.getJudgeInfo());
+        judgeContext.setQuestionSubmit(questionSubmit);
+        judgeContext.setQuestion(question);
+        //使用默认的判题策略
+        JudgeStrategy judgeStrategy = new DefaultJudgeStrategy();
+        //返回判题的信息：执行判题：
+        JudgeInfo judgeInfo = judgeStrategy.doJudge(judgeContext);
+
         //6 更新提交题目状态以及判题的状态
-        judgeInfoMessageEnum = JudgeInfoMessageEnum.ACCEPTED;
+        questionSubmitUpdate = new QuestionSubmit();
+        questionSubmitUpdate.setId(questionSubmitId);
         questionSubmitUpdate.setSubmitState(QuestionSubmitStatusEnum.SUCCEED.getValue());
+        questionSubmitUpdate.setJudgeInfo(JSONUtil.toJsonStr(judgeInfo));
         boolean update = questionSubmitService.save(questionSubmitUpdate);
         if (!update) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "更新提交题目状态失败");
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "更新题目提交状态失败");
         }
-        return null;
+        //返回提交题目信息
+        return questionSubmitService.getById(questionSubmitId);
     }
 }
