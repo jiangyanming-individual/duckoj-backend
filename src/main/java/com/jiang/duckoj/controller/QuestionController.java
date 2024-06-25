@@ -1,5 +1,6 @@
 package com.jiang.duckoj.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jiang.duckoj.annotation.AuthCheck;
@@ -59,7 +60,8 @@ public class QuestionController {
             question.setTags(JSONUtil.toJsonStr(tags));
         }
         //转换对象插入：
-        JudgeCase judgeCase = questionAddRequest.getJudgeCase();
+        List<JudgeCase> judgeCase = questionAddRequest.getJudgeCase();
+        //List对象转json:
         if (judgeCase != null) {
             question.setJudgeCase(JSONUtil.toJsonStr(judgeCase));
         }
@@ -122,8 +124,9 @@ public class QuestionController {
             question.setTags(JSONUtil.toJsonStr(tags));
         }
         //转换对象插入：
-        JudgeCase judgeCase = questionUpdateRequest.getJudgeCase();
-        if (judgeCase != null) {
+        List<JudgeCase> judgeCase = questionUpdateRequest.getJudgeCase();
+        //List对象转json:
+        if (CollUtil.isNotEmpty(judgeCase)) {
             question.setJudgeCase(JSONUtil.toJsonStr(judgeCase));
         }
         JudgeConfig judgeConfig = questionUpdateRequest.getJudgeConfig();
@@ -141,7 +144,31 @@ public class QuestionController {
     }
 
     /**
-     * 根据 id 获取题目信息
+     * 根据id 获取question信息
+     *
+     * @param id
+     * @param request
+     * @return
+     */
+    @GetMapping("/get")
+    public BaseResponse<Question> getQuestionById(long id, HttpServletRequest request) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Question question = questionService.getById(id);
+        if (question == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        if (!loginUser.getId().equals(question.getUserId()) && userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "不是本人或者管理员");
+        }
+        return ResultUtils.success(question);
+    }
+
+    /**
+     * 根据 id 获取题目信息 (脱敏)
+     *
      * @param id
      * @return
      */
@@ -159,6 +186,7 @@ public class QuestionController {
 
     /**
      * 分页获取列表（仅管理员）
+     *
      * @param questionQueryRequest
      * @return
      */
@@ -218,6 +246,7 @@ public class QuestionController {
 
     /**
      * 编辑（用户）
+     *
      * @param questionEditRequest
      * @param request
      * @return
@@ -233,8 +262,9 @@ public class QuestionController {
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
         }
-        //转换json对象插入数据库：
-        JudgeCase judgeCase = questionEditRequest.getJudgeCase();
+        //转换对象插入：
+        List<JudgeCase> judgeCase = questionEditRequest.getJudgeCase();
+        //List对象转json:
         if (judgeCase != null) {
             question.setJudgeCase(JSONUtil.toJsonStr(judgeCase));
         }

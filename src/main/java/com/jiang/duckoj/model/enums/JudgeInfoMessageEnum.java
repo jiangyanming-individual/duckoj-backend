@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 题目提交信息
+ * 判题信息
  *
  */
-public enum QuestionSubmitMessageEnum {
+public enum JudgeInfoMessageEnum {
 
     ACCEPTED("Accepted", "成功"),
     WRONG_ANSWER("Wrong Answer", "答案错误"),
@@ -28,7 +28,7 @@ public enum QuestionSubmitMessageEnum {
 
     private final String value;
 
-    QuestionSubmitMessageEnum(String text, String value) {
+    JudgeInfoMessageEnum(String text, String value) {
         this.text = text;
         this.value = value;
     }
@@ -48,11 +48,11 @@ public enum QuestionSubmitMessageEnum {
      * @param value
      * @return
      */
-    public static QuestionSubmitMessageEnum getEnumByValue(String value) {
+    public static JudgeInfoMessageEnum getEnumByValue(String value) {
         if (ObjectUtils.isEmpty(value)) {
             return null;
         }
-        for (QuestionSubmitMessageEnum anEnum : QuestionSubmitMessageEnum.values()) {
+        for (JudgeInfoMessageEnum anEnum : JudgeInfoMessageEnum.values()) {
             if (anEnum.value.equals(value)) {
                 return anEnum;
             }

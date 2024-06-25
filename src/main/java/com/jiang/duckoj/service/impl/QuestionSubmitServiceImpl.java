@@ -7,8 +7,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.duckoj.common.ErrorCode;
 import com.jiang.duckoj.constant.CommonConstant;
 import com.jiang.duckoj.exception.BusinessException;
-import com.jiang.duckoj.mapper.QuestionMapper;
-import com.jiang.duckoj.model.dto.questionsubmit.JudgeInfo;
 import com.jiang.duckoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.jiang.duckoj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.jiang.duckoj.model.entity.Question;
@@ -46,7 +44,6 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
 
     @Resource
     private UserService userService;
-
     @Resource
     private QuestionService questionService;
 
@@ -82,7 +79,8 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         questionSubmit.setSubmitCode(submitCode);
         questionSubmit.setSubmitLanguage(submitLanguage);
         questionSubmit.setUserId(userId);
-        questionSubmit.setSubmitState(QuestionSubmitStatusEnum.WATING.getValue());//设置提交状态
+        //提交题目的状态为判题：
+        questionSubmit.setSubmitState(QuestionSubmitStatusEnum.WAITING.getValue());//设置提交状态
         questionSubmit.setJudgeInfo("{}");
         //插入数据：
         boolean save = this.save(questionSubmit);
@@ -90,6 +88,8 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "提交题目失败");
         }
         //返回提交题目后的id：
+        //todo 进行判题操作
+
         return questionSubmit.getId();
     }
 
@@ -120,7 +120,6 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         queryWrapper.orderBy(SqlUtils.validSortField(sortField),sortOrder.equals(CommonConstant.SORT_ORDER_ASC),sortField);
         return queryWrapper;
     }
-
     /**
      * 获取单个题目提交信息：
      * @param questionSubmit
@@ -142,7 +141,6 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         return questionSubmitVO;
 
     }
-
     /**
      * 分页脱敏信息：
      * @param questionSubmitPage
@@ -174,7 +172,6 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
 //            questionSubmitVO.setUserVO(userVO);
 //            return questionSubmitVO;
 //        }).collect(Collectors.toList());
-
 
         //调用上面的单个提交信息脱敏的api进行脱敏：
         List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream().map(questionSubmit -> {

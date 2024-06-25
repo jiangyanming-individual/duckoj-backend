@@ -37,8 +37,6 @@ public class QuestionQueryRequest extends PageRequest implements Serializable {
      */
     private String content;
 
-
-
     /**
      * 标签列表（json 数组）
      */

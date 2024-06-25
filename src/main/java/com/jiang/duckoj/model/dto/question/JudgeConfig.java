@@ -19,5 +19,5 @@ public class JudgeConfig {
     /**
      * 堆栈限制
      */
-      private Long stackLimit;
+    private Long stackLimit;
 }

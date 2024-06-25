@@ -85,6 +85,7 @@ public class QuestionVO implements Serializable {
         Question question = new Question();
 
         BeanUtils.copyProperties(questionVO, question);
+        //判题用例：
         JudgeConfig judgeConfig = questionVO.getJudgeConfig();
         List<String> tagList = questionVO.getTags();
         //List 转Json 字符串：
@@ -111,8 +112,8 @@ public class QuestionVO implements Serializable {
         QuestionVO questionVO = new QuestionVO();
         BeanUtils.copyProperties(question, questionVO);
         String judgeConfig= question.getJudgeConfig();
-        // json 转对象：
-        questionVO.setJudgeConfig(JSONUtil.toBean(question.getJudgeConfig(), JudgeConfig.class));
+        // json数组转List对象
+        questionVO.setJudgeConfig(JSONUtil.toBean(judgeConfig, JudgeConfig.class));
         //json 转List
         questionVO.setTags(JSONUtil.toList(question.getTags(), String.class));
         return questionVO;
