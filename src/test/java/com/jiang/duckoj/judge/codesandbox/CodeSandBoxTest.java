@@ -31,6 +31,6 @@ class CodeSandBoxTest {
         List<String> inputList = Arrays.asList("12", "34");
         ExecuteRequest executeRequest = ExecuteRequest.builder().submitCode(code).submitLanguage(language).inputList(inputList).build();
         ExecuteResponse executeResponse = codeSandBoxProxy.doExecute(executeRequest);
-        Assertions.assertNull(executeResponse);
+        Assertions.assertNotNull(executeResponse);
     }
 }

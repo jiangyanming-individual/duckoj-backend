@@ -1,5 +1,4 @@
 package com.jiang.duckoj.judge.strategy;
-
 import com.jiang.duckoj.model.dto.questionsubmit.JudgeInfo;
 
 /**

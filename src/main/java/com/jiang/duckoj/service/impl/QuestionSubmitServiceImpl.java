@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.duckoj.common.ErrorCode;
 import com.jiang.duckoj.constant.CommonConstant;
 import com.jiang.duckoj.exception.BusinessException;
+import com.jiang.duckoj.judge.JudgeService;
 import com.jiang.duckoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.jiang.duckoj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.jiang.duckoj.model.entity.Question;
@@ -23,6 +24,7 @@ import com.jiang.duckoj.service.UserService;
 import com.jiang.duckoj.utils.SqlUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -46,6 +48,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     private UserService userService;
     @Resource
     private QuestionService questionService;
+
+    @Resource
+    @Lazy
+    private JudgeService judgeService;
 
     /***
      * 提交题目
@@ -88,9 +94,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "提交题目失败");
         }
         //返回提交题目后的id：
-        //todo 进行判题操作
-
-        return questionSubmit.getId();
+        //进行判题操作
+        Long questionSubmitId = questionSubmit.getId();
+        judgeService.doJudge(questionSubmitId);
+        return questionSubmitId;
     }
 
     /**

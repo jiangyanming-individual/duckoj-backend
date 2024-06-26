@@ -13,9 +13,9 @@ import com.jiang.duckoj.model.enums.JudgeInfoMessageEnum;
 import java.util.List;
 
 /**
- * 默认判题策略
+ * java的判题策略
  */
-public class DefaultJudgeStrategy implements JudgeStrategy {
+public class JavaJudgeStrategy implements JudgeStrategy {
 
     @Override
     public JudgeInfo doJudge(JudgeContext judgeContext) {
@@ -59,7 +59,10 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
         JudgeConfig expectJudgeConfig = JSONUtil.toBean(judgeConfigStr, JudgeConfig.class);
         Long needTimeLimit = expectJudgeConfig.getTimeLimit();
         Long needeMoryLimit = expectJudgeConfig.getMemoryLimit();
-        if (runTime > needTimeLimit) {
+
+        //java 策略额外需要花费10s:
+        final long JAVA_COST_TIME = 10000L;
+        if ((runTime - JAVA_COST_TIME) > needTimeLimit) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.TIME_LIMIT_EXCEEDED;
             judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;

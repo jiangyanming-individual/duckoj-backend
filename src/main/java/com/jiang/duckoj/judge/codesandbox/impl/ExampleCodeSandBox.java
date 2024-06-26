@@ -15,13 +15,11 @@ import java.util.List;
 public class ExampleCodeSandBox implements CodeSandBox {
     @Override
     public ExecuteResponse doExecute(ExecuteRequest executeRequest) {
-
         log.info("执行示例代码沙箱");
         //获取请求信息：
         List<String> inputList = executeRequest.getInputList();
         String submitLanguage = executeRequest.getSubmitLanguage();
         String submitCode = executeRequest.getSubmitCode();
-
         //返回判题信息的结果：
         ExecuteResponse executeResponse = new ExecuteResponse();
         executeResponse.setOutputList(inputList);

@@ -9,16 +9,12 @@ import com.jiang.duckoj.judge.codesandbox.CodeSandBoxProxy;
 import com.jiang.duckoj.judge.codesandbox.model.ExecuteRequest;
 import com.jiang.duckoj.judge.codesandbox.model.ExecuteResponse;
 import com.jiang.duckoj.judge.strategy.JudgeContext;
-import com.jiang.duckoj.judge.strategy.JudgeStrategy;
-import com.jiang.duckoj.judge.strategy.impl.DefaultJudgeStrategy;
+import com.jiang.duckoj.judge.strategy.JudgeManager;
 import com.jiang.duckoj.model.dto.question.JudgeCase;
-import com.jiang.duckoj.model.dto.question.JudgeConfig;
 import com.jiang.duckoj.model.dto.questionsubmit.JudgeInfo;
 import com.jiang.duckoj.model.entity.Question;
 import com.jiang.duckoj.model.entity.QuestionSubmit;
-import com.jiang.duckoj.model.enums.JudgeInfoMessageEnum;
 import com.jiang.duckoj.model.enums.QuestionSubmitStatusEnum;
-import com.jiang.duckoj.model.vo.QuestionSubmitVO;
 import com.jiang.duckoj.service.QuestionService;
 import com.jiang.duckoj.service.QuestionSubmitService;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +25,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
+/**
+ * 判题实现服务
+ */
 @Service
 public class JudgeServiceImpl implements JudgeService {
 
@@ -41,6 +40,10 @@ public class JudgeServiceImpl implements JudgeService {
     @Value("${codesandbox.type}")
     private String type;
 
+
+    @Resource
+    private JudgeManager judgeManager;
+
     @Override
     public QuestionSubmit doJudge(long questionSubmitId) {
         //(1) 传入判题的id，获取到对应判题题目、判题语言、判题内容、提交信息
@@ -49,7 +52,7 @@ public class JudgeServiceImpl implements JudgeService {
         if (questionSubmit == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "提交题目为空");
         }
-        Long questionId = questionSubmit.getQuestionId();
+        long questionId = questionSubmit.getQuestionId();
         Question question = questionService.getById(questionId);
         if (question == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "题目不存在");
@@ -63,8 +66,8 @@ public class JudgeServiceImpl implements JudgeService {
         QuestionSubmit questionSubmitUpdate = new QuestionSubmit();
         questionSubmitUpdate.setId(questionSubmitId);
         questionSubmitUpdate.setSubmitState(QuestionSubmitStatusEnum.RUNNING.getValue());
-        boolean save = questionSubmitService.save(questionSubmitUpdate);
-        if (!save) {
+        boolean update = questionSubmitService.updateById(questionSubmitUpdate);
+        if (!update) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "更新题目提交状态失败");
         }
         //(4) 调用代码沙箱，得到判题结果。
@@ -97,17 +100,15 @@ public class JudgeServiceImpl implements JudgeService {
         judgeContext.setJudgeInfo(executeResponse.getJudgeInfo());
         judgeContext.setQuestionSubmit(questionSubmit);
         judgeContext.setQuestion(question);
-        //使用默认的判题策略
-        JudgeStrategy judgeStrategy = new DefaultJudgeStrategy();
-        //返回判题的信息：执行判题：
-        JudgeInfo judgeInfo = judgeStrategy.doJudge(judgeContext);
-
+        //使用策略管理，进行判题操作：
+        JudgeInfo judgeInfo = judgeManager.doJudge(judgeContext);
         //6 更新提交题目状态以及判题的状态
         questionSubmitUpdate = new QuestionSubmit();
         questionSubmitUpdate.setId(questionSubmitId);
         questionSubmitUpdate.setSubmitState(QuestionSubmitStatusEnum.SUCCEED.getValue());
         questionSubmitUpdate.setJudgeInfo(JSONUtil.toJsonStr(judgeInfo));
-        boolean update = questionSubmitService.save(questionSubmitUpdate);
+        //更新题目提交的状态:
+        update = questionSubmitService.updateById(questionSubmitUpdate);
         if (!update) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "更新题目提交状态失败");
         }
