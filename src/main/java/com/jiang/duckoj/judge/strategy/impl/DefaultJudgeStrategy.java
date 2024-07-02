@@ -5,7 +5,7 @@ import com.jiang.duckoj.judge.strategy.JudgeContext;
 import com.jiang.duckoj.judge.strategy.JudgeStrategy;
 import com.jiang.duckoj.model.dto.question.JudgeCase;
 import com.jiang.duckoj.model.dto.question.JudgeConfig;
-import com.jiang.duckoj.model.dto.questionsubmit.JudgeInfo;
+import com.jiang.duckoj.judge.codesandbox.model.JudgeInfo;
 import com.jiang.duckoj.model.entity.Question;
 import com.jiang.duckoj.model.entity.QuestionSubmit;
 import com.jiang.duckoj.model.enums.JudgeInfoMessageEnum;

@@ -5,21 +5,27 @@ import com.jiang.duckoj.judge.strategy.JudgeContext;
 import com.jiang.duckoj.judge.strategy.JudgeStrategy;
 import com.jiang.duckoj.model.dto.question.JudgeCase;
 import com.jiang.duckoj.model.dto.question.JudgeConfig;
-import com.jiang.duckoj.model.dto.questionsubmit.JudgeInfo;
+import com.jiang.duckoj.judge.codesandbox.model.JudgeInfo;
 import com.jiang.duckoj.model.entity.Question;
 import com.jiang.duckoj.model.entity.QuestionSubmit;
 import com.jiang.duckoj.model.enums.JudgeInfoMessageEnum;
 
+import java.nio.file.OpenOption;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * java的判题策略
  */
 public class JavaJudgeStrategy implements JudgeStrategy {
 
+    /**
+     * 判题
+     * @param judgeContext
+     * @return
+     */
     @Override
     public JudgeInfo doJudge(JudgeContext judgeContext) {
-        //(5) 判断条件：
         // 1. 判断输入用例和代码沙箱的输出个数是否相等。
         //设置判题的状态：
         List<JudgeCase> judgeCaseList = judgeContext.getJudgeCaseList();
@@ -28,8 +34,10 @@ public class JavaJudgeStrategy implements JudgeStrategy {
         List<String> outputList = judgeContext.getOutputList();
         //判题输出信息：
         JudgeInfo judgeInfo = judgeContext.getJudgeInfo();
-        Long runTime = judgeInfo.getTime();
-        Long runMemory = judgeInfo.getMemory();
+        //运行时间
+        Long runTime = Optional.ofNullable(judgeInfo.getTime()).orElse(0L);
+        //运行内存
+        Long runMemory = Optional.ofNullable(judgeInfo.getMemory()).orElse(0L);
 
         QuestionSubmit questionSubmit = judgeContext.getQuestionSubmit();
         Question question = judgeContext.getQuestion();
@@ -54,13 +62,13 @@ public class JavaJudgeStrategy implements JudgeStrategy {
             }
         }
         // 3. 判断题目的限制是否符合要求。
-        //题目设置的判题限制：
+        // 3.1题目设置的判题限制：
         String judgeConfigStr = question.getJudgeConfig();
         JudgeConfig expectJudgeConfig = JSONUtil.toBean(judgeConfigStr, JudgeConfig.class);
         Long needTimeLimit = expectJudgeConfig.getTimeLimit();
         Long needeMoryLimit = expectJudgeConfig.getMemoryLimit();
 
-        //java 策略额外需要花费10s:
+        //3.2 java 策略额外需要花费10s:
         final long JAVA_COST_TIME = 10000L;
         if ((runTime - JAVA_COST_TIME) > needTimeLimit) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.TIME_LIMIT_EXCEEDED;
@@ -72,7 +80,7 @@ public class JavaJudgeStrategy implements JudgeStrategy {
             judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;
         }
-        //成功后返回判题成功的信息：
+        //3.3 成功后返回判题成功的信息：
         judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
         return judgeInfoResponse;
     }

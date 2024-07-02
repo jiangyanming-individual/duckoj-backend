@@ -6,12 +6,12 @@ import com.jiang.duckoj.exception.BusinessException;
 import com.jiang.duckoj.judge.codesandbox.CodeSandBox;
 import com.jiang.duckoj.judge.codesandbox.CodeSandBoxFactory;
 import com.jiang.duckoj.judge.codesandbox.CodeSandBoxProxy;
-import com.jiang.duckoj.judge.codesandbox.model.ExecuteRequest;
-import com.jiang.duckoj.judge.codesandbox.model.ExecuteResponse;
+import com.jiang.duckoj.judge.codesandbox.model.ExecuteCodeRequest;
+import com.jiang.duckoj.judge.codesandbox.model.ExecuteCodeResponse;
 import com.jiang.duckoj.judge.strategy.JudgeContext;
 import com.jiang.duckoj.judge.strategy.JudgeManager;
 import com.jiang.duckoj.model.dto.question.JudgeCase;
-import com.jiang.duckoj.model.dto.questionsubmit.JudgeInfo;
+import com.jiang.duckoj.judge.codesandbox.model.JudgeInfo;
 import com.jiang.duckoj.model.entity.Question;
 import com.jiang.duckoj.model.entity.QuestionSubmit;
 import com.jiang.duckoj.model.enums.QuestionSubmitStatusEnum;
@@ -84,25 +84,26 @@ public class JudgeServiceImpl implements JudgeService {
         List<String> judgeCaseInput = judgeCaseList.stream().map(JudgeCase::getInput).collect(Collectors.toList());
         //判题输出用例：
         List<String> judgeCaseOutput = judgeCaseList.stream().map(JudgeCase::getOutput).collect(Collectors.toList());
-        ExecuteRequest executeRequest = ExecuteRequest.builder()
+        ExecuteCodeRequest executeCodeRequest = ExecuteCodeRequest.builder()
                 .submitCode(submitCode)
                 .submitLanguage(submitLanguage)
                 .inputList(judgeCaseInput).build();
-        ExecuteResponse executeResponse = codeSandBoxProxy.doExecute(executeRequest);
+        ExecuteCodeResponse executeCodeResponse = codeSandBoxProxy.doExecute(executeCodeRequest);
 
+        //(5) 判题机根据代码沙箱的输出进行判题
         JudgeContext judgeContext = new JudgeContext();
         judgeContext.setJudgeCaseList(judgeCaseList);
         judgeContext.setJudgeCaseInput(judgeCaseInput);
         judgeContext.setJudgeCaseOutput(judgeCaseOutput);
         //获取代码沙箱输出结果
-        judgeContext.setOutputList(executeResponse.getOutputList());
+        judgeContext.setOutputList(executeCodeResponse.getOutputList());
         //获得代码沙箱输出的判题的信息：
-        judgeContext.setJudgeInfo(executeResponse.getJudgeInfo());
+        judgeContext.setJudgeInfo(executeCodeResponse.getJudgeInfo());
         judgeContext.setQuestionSubmit(questionSubmit);
         judgeContext.setQuestion(question);
         //使用策略管理，进行判题操作：
         JudgeInfo judgeInfo = judgeManager.doJudge(judgeContext);
-        //6 更新提交题目状态以及判题的状态
+        //(6) 更新提交题目状态以及判题的状态
         questionSubmitUpdate = new QuestionSubmit();
         questionSubmitUpdate.setId(questionSubmitId);
         questionSubmitUpdate.setSubmitState(QuestionSubmitStatusEnum.SUCCEED.getValue());

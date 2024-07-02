@@ -24,7 +24,7 @@ create table if not exists user
 ) comment '用户' collate = utf8mb4_unicode_ci;
 
 
--- 用户表
+-- 用户表扩展
 create table if not exists user_back
 (
     id           bigint auto_increment comment 'id' primary key,

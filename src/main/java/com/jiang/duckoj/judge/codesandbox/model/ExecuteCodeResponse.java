@@ -1,6 +1,5 @@
 package com.jiang.duckoj.judge.codesandbox.model;
 
-import com.jiang.duckoj.model.dto.questionsubmit.JudgeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ExecuteResponse {
+public class ExecuteCodeResponse {
 
     /**
      * 输入结果：

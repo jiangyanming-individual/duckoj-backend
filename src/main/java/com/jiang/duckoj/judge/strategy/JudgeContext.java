@@ -1,7 +1,7 @@
 package com.jiang.duckoj.judge.strategy;
 
 import com.jiang.duckoj.model.dto.question.JudgeCase;
-import com.jiang.duckoj.model.dto.questionsubmit.JudgeInfo;
+import com.jiang.duckoj.judge.codesandbox.model.JudgeInfo;
 import com.jiang.duckoj.model.entity.Question;
 import com.jiang.duckoj.model.entity.QuestionSubmit;
 import lombok.Data;

@@ -102,4 +102,4 @@ knife4j:
 
 
 codesandbox:
-  type: example
+  type: remote

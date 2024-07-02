@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -96,7 +97,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         //返回提交题目后的id：
         //进行判题操作
         Long questionSubmitId = questionSubmit.getId();
-        judgeService.doJudge(questionSubmitId);
+        //异步操作，不用管返回值的事：
+        CompletableFuture.runAsync(()->{
+            judgeService.doJudge(questionSubmitId);
+        });
         return questionSubmitId;
     }
 

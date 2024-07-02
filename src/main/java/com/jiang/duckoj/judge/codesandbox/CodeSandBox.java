@@ -1,14 +1,14 @@
 package com.jiang.duckoj.judge.codesandbox;
 
-import com.jiang.duckoj.judge.codesandbox.model.ExecuteRequest;
-import com.jiang.duckoj.judge.codesandbox.model.ExecuteResponse;
+import com.jiang.duckoj.judge.codesandbox.model.ExecuteCodeRequest;
+import com.jiang.duckoj.judge.codesandbox.model.ExecuteCodeResponse;
 
 public interface CodeSandBox {
 
     /**
      * 执行代码：
-     * @param executeRequest
+     * @param executeCodeRequest
      * @return
      */
-    ExecuteResponse doExecute(ExecuteRequest executeRequest);
+    ExecuteCodeResponse doExecute(ExecuteCodeRequest executeCodeRequest);
 }

@@ -1,8 +1,7 @@
 package com.jiang.duckoj.model.vo;
 
 import cn.hutool.json.JSONUtil;
-import com.jiang.duckoj.model.dto.questionsubmit.JudgeInfo;
-import com.jiang.duckoj.model.entity.Question;
+import com.jiang.duckoj.judge.codesandbox.model.JudgeInfo;
 import com.jiang.duckoj.model.entity.QuestionSubmit;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
