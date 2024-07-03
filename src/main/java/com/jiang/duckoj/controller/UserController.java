@@ -162,6 +162,8 @@ public class UserController {
      * @param request
      * @return
      */
+    //todo 补充逻辑校验：
+
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
@@ -171,9 +173,9 @@ public class UserController {
         User user = new User();
         BeanUtils.copyProperties(userAddRequest, user);
         // 默认密码 12345678
-        String defaultPassword = "12345678";
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + defaultPassword).getBytes());
-        user.setUserPassword(encryptPassword);
+//        String defaultPassword = "12345678";
+//        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + defaultPassword).getBytes());
+//        user.setUserPassword(encryptPassword);
         boolean result = userService.save(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(user.getId());
@@ -291,8 +293,6 @@ public class UserController {
         userVOPage.setRecords(userVO);
         return ResultUtils.success(userVOPage);
     }
-
-    // endregion
 
     /**
      * 更新个人信息

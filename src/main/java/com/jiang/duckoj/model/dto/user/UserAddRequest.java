@@ -1,11 +1,11 @@
 package com.jiang.duckoj.model.dto.user;
 
 import java.io.Serializable;
+
 import lombok.Data;
 
 /**
  * 用户创建请求
- *
  */
 @Data
 public class UserAddRequest implements Serializable {
@@ -19,6 +19,11 @@ public class UserAddRequest implements Serializable {
      * 账号
      */
     private String userAccount;
+
+    /**
+     * 用户密码
+     */
+    private String userPassword;
 
     /**
      * 用户头像
