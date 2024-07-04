@@ -15,10 +15,12 @@ import com.jiang.duckoj.model.vo.LoginUserVO;
 import com.jiang.duckoj.model.vo.UserVO;
 import com.jiang.duckoj.service.UserService;
 import com.jiang.duckoj.utils.SqlUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +30,6 @@ import org.springframework.util.DigestUtils;
 
 /**
  * 用户服务实现
- *
  */
 @Service
 @Slf4j
@@ -37,7 +38,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 盐值，混淆密码
      */
-    public static final String SALT = "yupi";
+    public static final String SALT = "jangyanming";
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {

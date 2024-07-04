@@ -44,7 +44,6 @@ import static com.jiang.duckoj.service.impl.UserServiceImpl.SALT;
 
 /**
  * 用户接口
- *
  */
 @RestController
 @RequestMapping("/user")
@@ -106,7 +105,7 @@ public class UserController {
      */
     @GetMapping("/login/wx_open")
     public BaseResponse<LoginUserVO> userLoginByWxOpen(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("code") String code) {
+                                                       @RequestParam("code") String code) {
         WxOAuth2AccessToken accessToken;
         try {
             WxMpService wxService = wxOpenConfig.getWxMpService();
@@ -151,10 +150,6 @@ public class UserController {
         return ResultUtils.success(userService.getLoginUserVO(user));
     }
 
-    // endregion
-
-    // region 增删改查
-
     /**
      * 创建用户
      *
@@ -162,7 +157,6 @@ public class UserController {
      * @param request
      * @return
      */
-    //todo 补充逻辑校验：
 
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -170,12 +164,33 @@ public class UserController {
         if (userAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        //参数校验
+        String userName = userAddRequest.getUserName();
+        String userAccount = userAddRequest.getUserAccount();
+        String userPassword = userAddRequest.getUserPassword();
+        String userAvatar = userAddRequest.getUserAvatar();
+        String userRole = userAddRequest.getUserRole();
+
+        if (StringUtils.isAnyBlank(userAccount, userName, userPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
+        }
+
+        if (userAccount.length() < 4) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户长度不能小于4");
+        }
+
+        if (userPassword.length() < 8 || userPassword.length() > 16) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码长度不符合要求");
+        }
+        if (userAvatar.length() > 512) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "头像不符合要求");
+        }
+        // 2. 密码进行加密操作
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         User user = new User();
         BeanUtils.copyProperties(userAddRequest, user);
-        // 默认密码 12345678
-//        String defaultPassword = "12345678";
-//        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + defaultPassword).getBytes());
-//        user.setUserPassword(encryptPassword);
+        //加密密码：
+        user.setUserPassword(encryptPassword);
         boolean result = userService.save(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(user.getId());
@@ -208,9 +223,24 @@ public class UserController {
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
-            HttpServletRequest request) {
+                                            HttpServletRequest request) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
+        }
+        Long id = userUpdateRequest.getId();
+        String userName = userUpdateRequest.getUserName();
+        String userAvatar = userUpdateRequest.getUserAvatar();
+        String userProfile = userUpdateRequest.getUserProfile();
+        String userRole = userUpdateRequest.getUserRole();
+
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户id不合法");
+        }
+        if (userAvatar.length() > 512) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "头像不合法");
+        }
+        if (userName.length() > 50) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户名过长");
         }
         User user = new User();
         BeanUtils.copyProperties(userUpdateRequest, user);
@@ -261,7 +291,7 @@ public class UserController {
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+                                                   HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
@@ -278,7 +308,7 @@ public class UserController {
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+                                                       HttpServletRequest request) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -303,7 +333,7 @@ public class UserController {
      */
     @PostMapping("/update/my")
     public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
-            HttpServletRequest request) {
+                                              HttpServletRequest request) {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
