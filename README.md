@@ -1,34 +1,34 @@
 # SpringBoot + Spring Cloud +Nacos + Spring Cloud GateWay+ Vue3  实现在线判题系统
 
 ## 主要内容截图
-![img_8.png](img_8.png)
+![img_8.png](images/img_8.png)
 ### 题目浏览
 
-![img_1.png](img_1.png)
+![img_1.png](images/img_1.png)
 
 ### 做题
 
-![img_3.png](img_3.png)
+![img_3.png](images/img_3.png)
 
 ### 题目提交
 
-![img_2.png](img_2.png)
+![img_2.png](images/img_2.png)
 
 ### 创建题目
 
-![img_4.png](img_4.png)
+![img_4.png](images/img_4.png)
 
 ### 题目管理
 
-![img_5.png](img_5.png)
+![img_5.png](images/img_5.png)
 
 ### 用户管理
 
-![img_7.png](img_7.png)
+![img_7.png](images/img_7.png)
 
 ### 个人主页
 
-![img_6.png](img_6.png)
+![img_6.png](images/img_6.png)
 
 ### 主流框架 & 特性
 
