@@ -5,24 +5,29 @@
 <mapper namespace="com.jiang.duckoj.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="com.jiang.duckoj.model.entity.User">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="userAccount" column="userAccount" jdbcType="VARCHAR"/>
-            <result property="userPassword" column="userPassword" jdbcType="VARCHAR"/>
-            <result property="unionId" column="unionId" jdbcType="VARCHAR"/>
-            <result property="mpOpenId" column="mpOpenId" jdbcType="VARCHAR"/>
-            <result property="userName" column="userName" jdbcType="VARCHAR"/>
-            <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
-            <result property="userProfile" column="userProfile" jdbcType="VARCHAR"/>
-            <result property="userRole" column="userRole" jdbcType="VARCHAR"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userAccount" column="userAccount" jdbcType="VARCHAR"/>
+        <result property="userPassword" column="userPassword" jdbcType="VARCHAR"/>
+        <result property="unionId" column="unionId" jdbcType="VARCHAR"/>
+        <result property="mpOpenId" column="mpOpenId" jdbcType="VARCHAR"/>
+        <result property="userName" column="userName" jdbcType="VARCHAR"/>
+        <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
+        <result property="userProfile" column="userProfile" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="userState" column="userState" jdbcType="VARCHAR"/>
+        <result property="userRole" column="userRole" jdbcType="VARCHAR"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,userAccount,userPassword,
+        id
+        ,userAccount,userPassword,
         unionId,mpOpenId,userName,
-        userAvatar,userProfile,userRole,
+        userAvatar,userProfile,gender,phone,email,userState,userRole,
         createTime,updateTime,isDelete
     </sql>
 </mapper>

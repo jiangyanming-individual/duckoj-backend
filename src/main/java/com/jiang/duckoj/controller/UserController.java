@@ -185,6 +185,8 @@ public class UserController {
         if (userAvatar.length() > 512) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "头像不符合要求");
         }
+        //todo 校验邮箱和手机号：
+
         // 2. 密码进行加密操作
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         User user = new User();

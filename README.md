@@ -11,8 +11,7 @@
 ![img_3.png](images/img_3.png)
 
 ### 题目提交
-
-![img_2.png](images/img_2.png)
+![img_3.png](img_3.png)
 
 ### 创建题目
 
@@ -25,11 +24,13 @@
 ### 用户管理
 
 ![img_7.png](images/img_7.png)
+#### 新增
+![img_1.png](img_1.png)
 
+#### 更新
+![img_2.png](img_2.png)
 ### 个人主页
-
-![img_6.png](images/img_6.png)
-
+![img.png](img.png)
 ### 主流框架 & 特性
 
 - Spring Boot 2.7.x（贼新）
@@ -45,7 +46,7 @@
 - MySQL 数据库
 - Redis 内存数据库
 - Elasticsearch 搜索引擎
-- 腾讯云 COS 对象存储
+- 阿里云 COS 对象存储
 
 ### 工具类
 

@@ -1,13 +1,12 @@
 package com.jiang.duckoj.model.dto.user;
 
 import java.io.Serializable;
+
 import lombok.Data;
 
+
 /**
- * 用户更新个人信息请求
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ * 用户更新个人信息：
  */
 @Data
 public class UserUpdateMyRequest implements Serializable {
@@ -26,6 +25,21 @@ public class UserUpdateMyRequest implements Serializable {
      * 简介
      */
     private String userProfile;
+
+    /**
+     * 性别
+     */
+    private String gender;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+    /**
+     * 手机号
+     */
+    private String phone;
+
 
     private static final long serialVersionUID = 1L;
 }

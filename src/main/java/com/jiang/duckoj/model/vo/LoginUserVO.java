@@ -2,11 +2,11 @@ package com.jiang.duckoj.model.vo;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import lombok.Data;
 
 /**
  * 已登录用户视图（脱敏）
- *
  **/
 @Data
 public class LoginUserVO implements Serializable {
@@ -22,6 +22,11 @@ public class LoginUserVO implements Serializable {
     private String userName;
 
     /**
+     * 用户账户
+     */
+    private String userAccount;
+
+    /**
      * 用户头像
      */
     private String userAvatar;
@@ -35,6 +40,25 @@ public class LoginUserVO implements Serializable {
      * 用户角色：user/admin/ban
      */
     private String userRole;
+
+    /**
+     * 性别
+     */
+    private String gender;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+    /**
+     * 手机号
+     */
+    private String phone;
+
+    /**
+     * 状态：
+     */
+    private String userState;
 
     /**
      * 创建时间

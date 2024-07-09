@@ -5,18 +5,24 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.util.Date;
+
 import lombok.Data;
 
 /**
  * 用户
- *
  */
 @TableName(value = "user")
 @Data
 public class User implements Serializable {
 
+//
+//     <!--    gender       varchar(256) default '男'              null comment '性别 男 女',-->
+//    <!--    phone        varchar(128)                           null comment '电话',-->
+//    <!--    email        varchar(512)                           null comment '邮箱',-->
+//    <!--    userState    varchar(256) default '正常'            not null comment '状态:0-正常/1-注销/2-封号',-->
     /**
      * id
      */
@@ -57,6 +63,26 @@ public class User implements Serializable {
      * 用户简介
      */
     private String userProfile;
+
+
+    /**
+     * 性别
+     */
+    private String gender;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+    /**
+     * 手机号
+     */
+    private String phone;
+
+    /**
+     * 状态：
+     */
+    private String userState;
 
     /**
      * 用户角色：user/admin/ban

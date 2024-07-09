@@ -1,6 +1,7 @@
 package com.jiang.duckoj.judge;
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jiang.duckoj.common.ErrorCode;
 import com.jiang.duckoj.exception.BusinessException;
 import com.jiang.duckoj.judge.codesandbox.CodeSandBox;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -30,6 +32,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class JudgeServiceImpl implements JudgeService {
+
+    private static final int number = 1;
 
     @Resource
     private QuestionService questionService;
@@ -57,7 +61,6 @@ public class JudgeServiceImpl implements JudgeService {
         if (question == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "题目不存在");
         }
-
         //(2) 如果题目的提交状态不为待判题，就不用重复提交判题 （只有待判题是真正需要判题的）
         if (!questionSubmit.getSubmitState().equals(QuestionSubmitStatusEnum.WAITING.getValue())) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "题目在判题中");
@@ -112,6 +115,22 @@ public class JudgeServiceImpl implements JudgeService {
         update = questionSubmitService.updateById(questionSubmitUpdate);
         if (!update) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "更新题目提交状态失败");
+        }
+        //(7) 更新总的题目提交数：
+        QueryWrapper<QuestionSubmit> questionSubmitQueryWrapper = new QueryWrapper<>();
+        questionSubmitQueryWrapper.eq("questionId", questionId);
+        //统计总的提交数：
+        int submitNum = (int) questionSubmitService.list(questionSubmitQueryWrapper).stream().count();
+        List<QuestionSubmit> questionSubmitList = questionSubmitService.list(questionSubmitQueryWrapper).stream().collect(Collectors.toList());
+        //按照状态进行分组：
+        Map<Integer, List<QuestionSubmit>> submitQuestionMap = questionSubmitList.stream().collect(Collectors.groupingBy(QuestionSubmit::getSubmitState));
+        int acceptedNum = submitQuestionMap.get(QuestionSubmitStatusEnum.SUCCEED.getValue()).size();
+        //更新题目的状态：
+        question.setSubmitNum(submitNum + number);
+        question.setAcceptedNum(acceptedNum + number);
+        boolean b = questionService.updateById(question);
+        if (!b) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "更新题目提交数失败");
         }
         //返回提交题目信息
         return questionSubmitService.getById(questionSubmitId);
