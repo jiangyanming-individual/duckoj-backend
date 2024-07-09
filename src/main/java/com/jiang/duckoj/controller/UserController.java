@@ -26,6 +26,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.jiang.duckoj.utils.ValidEmailUtils;
+import com.jiang.duckoj.utils.ValidPhoneUtils;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
@@ -168,8 +170,13 @@ public class UserController {
         String userName = userAddRequest.getUserName();
         String userAccount = userAddRequest.getUserAccount();
         String userPassword = userAddRequest.getUserPassword();
+        String gender = userAddRequest.getGender();
+        String email = userAddRequest.getEmail();
+        String phone = userAddRequest.getPhone();
+        String userState = userAddRequest.getUserState();
         String userAvatar = userAddRequest.getUserAvatar();
         String userRole = userAddRequest.getUserRole();
+
 
         if (StringUtils.isAnyBlank(userAccount, userName, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
@@ -185,8 +192,20 @@ public class UserController {
         if (userAvatar.length() > 512) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "头像不符合要求");
         }
-        //todo 校验邮箱和手机号：
 
+        if (StringUtils.isNotBlank(email)) {
+
+            boolean validate = ValidEmailUtils.validate(email);
+            if (!validate) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式不合法");
+            }
+        }
+        if (StringUtils.isNotBlank(phone)) {
+            boolean validate = ValidPhoneUtils.validate(phone);
+            if (!validate) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "手机号不合法");
+            }
+        }
         // 2. 密码进行加密操作
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         User user = new User();
@@ -233,6 +252,10 @@ public class UserController {
         String userName = userUpdateRequest.getUserName();
         String userAvatar = userUpdateRequest.getUserAvatar();
         String userProfile = userUpdateRequest.getUserProfile();
+        String gender = userUpdateRequest.getGender();
+        String email = userUpdateRequest.getEmail();
+        String phone = userUpdateRequest.getPhone();
+        String userState = userUpdateRequest.getUserState();
         String userRole = userUpdateRequest.getUserRole();
 
         if (id <= 0) {
@@ -244,6 +267,22 @@ public class UserController {
         if (userName.length() > 50) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户名过长");
         }
+
+        //校验邮箱和手机号
+        if (StringUtils.isNotBlank(email)) {
+
+            boolean validate = ValidEmailUtils.validate(email);
+            if (!validate) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式不合法");
+            }
+        }
+        if (StringUtils.isNotBlank(phone)) {
+            boolean validate = ValidPhoneUtils.validate(phone);
+            if (!validate) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "手机号不合法");
+            }
+        }
+
         User user = new User();
         BeanUtils.copyProperties(userUpdateRequest, user);
         boolean result = userService.updateById(user);
@@ -338,6 +377,31 @@ public class UserController {
                                               HttpServletRequest request) {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        String userName = userUpdateMyRequest.getUserName();
+        String userAvatar = userUpdateMyRequest.getUserAvatar();
+        String userProfile = userUpdateMyRequest.getUserProfile();
+        String gender = userUpdateMyRequest.getGender();
+        String email = userUpdateMyRequest.getEmail();
+        String phone = userUpdateMyRequest.getPhone();
+        if (userName.length() > 512) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户名不合法");
+        }
+        if (userProfile.length() > 512) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户个人简介不合法");
+        }
+        //校验邮箱和手机号
+        if (StringUtils.isNotBlank(email)) {
+            boolean validate = ValidEmailUtils.validate(email);
+            if (!validate) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式不合法");
+            }
+        }
+        if (StringUtils.isNotBlank(phone)) {
+            boolean validate = ValidPhoneUtils.validate(phone);
+            if (!validate) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "手机号不合法");
+            }
         }
         User loginUser = userService.getLoginUser(request);
         User user = new User();
