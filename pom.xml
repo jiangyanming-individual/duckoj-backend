@@ -17,6 +17,12 @@
         <java.version>1.8</java.version>
     </properties>
     <dependencies>
+<!--        导入限流依赖：-->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.28.0</version>
+        </dependency>
         <!--阿里云对象存储OSS-->
         <dependency>
             <groupId>com.aliyun.oss</groupId>

@@ -1,6 +1,7 @@
 package com.jiang.duckoj.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -80,7 +81,11 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (languageEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "编程语言错误");
         }
+        //todo 提交代码不能为空
         String submitCode = questionSubmitAddRequest.getSubmitCode();
+        if (StringUtils.isBlank(submitCode)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "提交代码不能为空");
+        }
         //保存到对象中
         questionSubmit.setQuestionId(questionId);
         questionSubmit.setSubmitCode(submitCode);
@@ -98,7 +103,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         //进行判题操作
         Long questionSubmitId = questionSubmit.getId();
         //异步操作，不用管返回值的事：
-        CompletableFuture.runAsync(()->{
+        CompletableFuture.runAsync(() -> {
             judgeService.doJudge(questionSubmitId);
         });
         return questionSubmitId;
@@ -106,6 +111,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
 
     /**
      * 拼接查询参数
+     *
      * @param questionSubmitQueryRequest
      * @return
      */
@@ -123,47 +129,51 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         String sortField = questionSubmitQueryRequest.getSortField();
         String sortOrder = questionSubmitQueryRequest.getSortOrder();
         //拼接查询字段：
-        queryWrapper.eq(StringUtils.isNotBlank(submitLanguage), "submitLanguage", submitLanguage) ;
+        queryWrapper.eq(StringUtils.isNotBlank(submitLanguage), "submitLanguage", submitLanguage);
         queryWrapper.eq(QuestionSubmitStatusEnum.getEnumByValue(submitState) != null, "submitState", submitState);
-        queryWrapper.eq(ObjectUtils.isNotEmpty(userId),"userId",userId);
-        queryWrapper.eq(ObjectUtils.isNotEmpty(questionId),"questionId",questionId);
+        queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
+        queryWrapper.eq(ObjectUtils.isNotEmpty(questionId), "questionId", questionId);
         //排序字段：
-        queryWrapper.orderBy(SqlUtils.validSortField(sortField),sortOrder.equals(CommonConstant.SORT_ORDER_ASC),sortField);
+        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         return queryWrapper;
     }
+
     /**
      * 获取单个题目提交信息：
+     *
      * @param questionSubmit
      * @param loginUser
      * @return
      */
     @Override
     public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, User loginUser) {
-        if (questionSubmit  == null){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"题目提交参数为空");
+        if (questionSubmit == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "题目提交参数为空");
         }
         QuestionSubmitVO questionSubmitVO = QuestionSubmitVO.objToVo(questionSubmit);
         long userId = loginUser.getId();
         //不是管理员而且不是提交者，不能查看代码：
-        if (userId!=questionSubmitVO.getUserId() && !userService.isAdmin(loginUser)){
+        if (userId != questionSubmitVO.getUserId() && !userService.isAdmin(loginUser)) {
             //代码进行脱敏
             questionSubmitVO.setSubmitCode(null);
         }
         return questionSubmitVO;
 
     }
+
     /**
      * 分页脱敏信息：
+     *
      * @param questionSubmitPage
      * @param loginUser
      * @return
      */
     @Override
-    public Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> questionSubmitPage,User loginUser) {
+    public Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> questionSubmitPage, User loginUser) {
         List<QuestionSubmit> questionSubmitList = questionSubmitPage.getRecords();
         Page<QuestionSubmitVO> questionSubmitVOPage = new Page<>(questionSubmitPage.getCurrent(), questionSubmitPage.getSize(), questionSubmitPage.getTotal());
         //如果为空返回空的分页数据：
-        if (CollUtil.isEmpty(questionSubmitList)){
+        if (CollUtil.isEmpty(questionSubmitList)) {
             return questionSubmitVOPage;
         }
         //关联查询数据；

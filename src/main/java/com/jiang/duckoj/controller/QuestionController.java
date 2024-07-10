@@ -11,6 +11,7 @@ import com.jiang.duckoj.common.ResultUtils;
 import com.jiang.duckoj.constant.UserConstant;
 import com.jiang.duckoj.exception.BusinessException;
 import com.jiang.duckoj.exception.ThrowUtils;
+import com.jiang.duckoj.manager.RedissonRateLimiterManager;
 import com.jiang.duckoj.model.dto.question.*;
 import com.jiang.duckoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.jiang.duckoj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
@@ -47,6 +48,10 @@ public class QuestionController {
 
     @Resource
     private UserService userService;
+
+
+    @Resource
+    private RedissonRateLimiterManager redissonRateLimiterManager;
 
     /**
      * 创建
@@ -314,6 +319,8 @@ public class QuestionController {
         if (loginUser.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户id不合法");
         }
+        //执行限流操作：
+        redissonRateLimiterManager.doLimitRate("submitQuestion_" + loginUser.getId());
         //返回提交题目后插入数据中的id
         long result = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(result);
