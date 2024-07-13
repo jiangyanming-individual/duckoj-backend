@@ -61,6 +61,11 @@ public class UserVO implements Serializable {
     private String userState;
 
     /**
+     * token
+     */
+    private String token;
+
+    /**
      * 创建时间
      */
     private Date createTime;

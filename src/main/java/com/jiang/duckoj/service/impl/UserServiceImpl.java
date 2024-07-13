@@ -14,10 +14,14 @@ import com.jiang.duckoj.model.enums.UserRoleEnum;
 import com.jiang.duckoj.model.vo.LoginUserVO;
 import com.jiang.duckoj.model.vo.UserVO;
 import com.jiang.duckoj.service.UserService;
+import com.jiang.duckoj.utils.JwtUtils;
 import com.jiang.duckoj.utils.SqlUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
@@ -56,6 +60,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!userPassword.equals(checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
         }
+        // 账户不包含特殊字符
+        String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
+        if (matcher.find()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户不能含有特殊的字符");
+        }
         synchronized (userAccount.intern()) {
             // 账户不能重复
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -75,6 +85,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
             }
             return user.getId();
+
         }
     }
 
@@ -104,7 +115,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 3. 记录用户的登录态
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
-        return this.getLoginUserVO(user);
+
+        //todo 模拟jwt,生成token
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("userAccount", userAccount);
+        String token = JwtUtils.getToken(map);
+        LoginUserVO loginUserVO = this.getLoginUserVO(user);
+        loginUserVO.setToken(token);
+
+        return loginUserVO;
     }
 
     @Override

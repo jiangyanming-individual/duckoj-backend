@@ -18,6 +18,7 @@ import com.jiang.duckoj.model.enums.QuestionSubmitLanguageEnum;
 import com.jiang.duckoj.model.enums.QuestionSubmitStatusEnum;
 import com.jiang.duckoj.model.vo.QuestionSubmitVO;
 import com.jiang.duckoj.model.vo.UserVO;
+import com.jiang.duckoj.mq.MyProducer;
 import com.jiang.duckoj.service.QuestionService;
 import com.jiang.duckoj.service.QuestionSubmitService;
 import com.jiang.duckoj.mapper.QuestionSubmitMapper;
@@ -37,6 +38,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static com.jiang.duckoj.model.enums.RabbitMQConstant.DIRECT_EXCHANGE;
+import static com.jiang.duckoj.model.enums.RabbitMQConstant.ROUTING_KEY;
+
 /**
  * @author jiangyanming
  * @description 针对表【question_submit(提交题目表)】的数据库操作Service实现
@@ -50,6 +54,9 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     private UserService userService;
     @Resource
     private QuestionService questionService;
+
+    @Resource
+    private MyProducer myProducer;
 
     @Resource
     @Lazy
@@ -81,12 +88,11 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (languageEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "编程语言错误");
         }
-        //todo 提交代码不能为空
         String submitCode = questionSubmitAddRequest.getSubmitCode();
         if (StringUtils.isBlank(submitCode)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "提交代码不能为空");
         }
-        //保存到对象中
+        //提交题目到数据库中：
         questionSubmit.setQuestionId(questionId);
         questionSubmit.setSubmitCode(submitCode);
         questionSubmit.setSubmitLanguage(submitLanguage);
@@ -99,13 +105,28 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (!save) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "提交题目失败");
         }
-        //返回提交题目后的id：
-        //进行判题操作
+        //返回提交题目后的id：读取id进行判题
         Long questionSubmitId = questionSubmit.getId();
+
         //异步操作，不用管返回值的事：
-        CompletableFuture.runAsync(() -> {
-            judgeService.doJudge(questionSubmitId);
-        });
+//        CompletableFuture.runAsync(() -> {
+//            judgeService.doJudge(questionSubmitId);
+//        });
+        //使用消息队列实现：
+        myProducer.sendMessage(DIRECT_EXCHANGE, ROUTING_KEY, String.valueOf(questionSubmitId));
+        //更新题目提交数
+        int submitNum = question.getSubmitNum();
+        Question updateQuestion=new Question();
+        synchronized (question.getSubmitNum()){
+            //更新提交题目
+            submitNum +=submitNum;
+            updateQuestion.setId(questionId);
+            updateQuestion.setSubmitNum(submitNum);
+            boolean b = questionService.updateById(updateQuestion);
+            if (!b){
+                throw new BusinessException(ErrorCode.OPERATION_ERROR,"更新题目提交数失败");
+            }
+        }
         return questionSubmitId;
     }
 
